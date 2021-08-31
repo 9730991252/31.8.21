@@ -1,0 +1,161 @@
+<script>
+
+
+    $('.bcat').click(function () {
+        var id = $(this).attr("pid").toString();
+        $.ajax({
+            type: "GET",
+            url: "{% url 'sub' %}",
+            data: {
+                prod_id: id
+            },
+            success: function (data) {
+                $("#subcat").empty()
+                $("#allprod").empty()
+                for (var key in data.sub_category)
+
+                {
+
+                    var temp = '<button type="button"  class="btn btn-outline-primary btncat" plid=' + data
+                        .sub_category[key].id + '  > ' + data.sub_category[key].name +'</button><br><br>'
+
+                    $("#subcat").append(temp);
+                    //document.getElementById("subcat").innerText =data;
+                }
+            }
+        });
+    });
+
+    $("#subcat").on("click", ".btncat", function () {
+
+        let id = $(this).attr("plid").toString();
+
+        //console.log(id);
+        window.scrollTo(0,100);
+        $.ajax({
+            method: "GET",
+            url: "{% url 'product' %}",
+            data: {
+                subid: id
+            },
+            success: function (data) {
+                $("#allprod").empty()
+                //console.log(data);
+                for (var key in data.allproduct) {
+                    console.log(data.allproduct[key].seller_id);
+                    var temp = '<div  class="container my-4 border" "row"  ><div > <img  src="' +
+                        data.allproduct[key].image + '" >  <br>  ' +
+                        data.allproduct[key].product_name + '<br>'+' Rs ' +
+                        data.allproduct[key].price +
+                        ' <br>'+ data.allproduct[key].seller_name+' <br><span  id="divpr'+
+                        data.allproduct[key].id + ' " ><button   class="btn btn-success btnsave" prid=" ' +
+                        data.allproduct[key].id + ' " prsid=" ' +
+                        data.allproduct[key].price + ' " prname=" ' +
+                        data.allproduct[key].product_name + ' "> खरेदी करा  </button></span><a href=" ' +
+                        data.allproduct[key].id + ' " >info</a> <br></div> </div>'
+
+
+                    $("#allprod").append(temp);
+                    
+                                      
+
+                }
+            },
+        });
+    });
+    //////////////////////////////////////////////////////
+
+
+    $("#allprod").on("click", ".btnsave", function () {
+
+        let prid = $(this).attr("prid");
+        let prs = $(this).attr("prsid");
+        let prname = $(this).attr("prname");
+        mydata = {
+            prid: prid,
+            prsid: prs,
+            pr_name:prname,
+        }
+       
+
+        $.ajax({
+            url: "{% url 'addtocard' %}",
+            method: "POST",
+            data: mydata,
+            success: function (data) {
+              
+                //console.log(data.cart[c].product_id);
+                //console.log(cr);
+                totalitem=data.totalitem
+                for (var c in data.cart) {
+                    
+                }
+                document.getElementById("cart").innerText =totalitem;
+
+
+                if (data.status == 1)
+                //alert("added successfully")
+                for (var cr in data.cart){
+                console.log(data.cart[cr].product_name);
+                cart_temp = ''+'divpr' +
+                        data.cart[cr].product_id + ' '
+                        
+                        cart_qty = ''+'qty' +
+                        data.cart[cr].qty + ' '
+                       //console.log(cart_qty)
+                        document.getElementById(cart_temp).innerHTML= "वस्तु यादीत टाकली ";
+
+
+                       
+            }
+  
+                if (data.status == 0)
+                //alert("already added")
+                for (var cr in data.cart){
+                console.log(data.cart[cr].product_name);
+                cart_temp = ''+'divpr' +
+                        data.cart[cr].product_id + ' '
+                        
+                        cart_qty = ''+'qty' +
+                        data.cart[cr].qty + ' '
+                       //console.log(cart_qty)
+                        document.getElementById(cart_temp).innerHTML= "वस्तु यादीत टाकली ";
+
+            }}
+        });
+    });
+
+
+
+$("#allprod").on("click", ".minus", function () {
+    
+        let id = $(this).attr("product_id");
+  
+        alert(id);
+        $.ajax({
+        type:"GET",
+        url:"{% url 'minus_frant' %}",
+        data:{
+            id:id
+        },
+        success: function (data){
+
+            for (var cr in data.cart){
+                //console.log(data.cart[cr].product_name);
+                cart_temp = ''+'divpr' +
+                        data.cart[cr].product_id + ' '
+                        
+                        cart_qty = ''+'qty' +
+                        data.cart[cr].qty + ' '
+                       console.log(cart_qty)
+                        document.getElementById(cart_temp).innerHTML= "<button id='minus" +  "' class='btn btn-primary minus'  >-</button> " + data.cart[cr].qty + "<span id='val" + "''>" +  "</span> <button id='plus"  + "' class='btn btn-primary plus'> +  </button>";
+            }
+            
+        }
+
+    })
+
+});
+
+
+   </script>
